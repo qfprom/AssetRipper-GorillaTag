@@ -1,9 +1,16 @@
-# AssetRipper
+# AssetRipper (Gorilla Tag Post 2025 fork)
 
-[![](https://img.shields.io/github/downloads/AssetRipper/AssetRipper/total.svg)](https://github.com/AssetRipper/AssetRipper/releases)
-[![](https://img.shields.io/github/downloads/AssetRipper/AssetRipper/latest/total.svg)](https://github.com/AssetRipper/AssetRipper/releases/latest)
-[![](https://img.shields.io/github/v/release/AssetRipper/AssetRipper)](https://github.com/AssetRipper/AssetRipper/releases/latest)
-[![](https://weblate.samboy.dev/widgets/assetripper/-/gui/svg-badge.svg)](http://weblate.samboy.dev/engage/assetripper/)
+This is a narrow, one-purpose fork. It's for ripping Gorilla Tag builds from late 2025 onward, nothing else.
+
+Sometime around then, Another Axiom started slapping `[SerializeReference]` on fields that shouldn't have it. mainly plain `UnityEngine.Object` derived arrays like `AudioSource[]`. Unity doesn't actually support that as a real polymorphic managed reference, so its serializer just falls back to writing the field as an ordinary PPtr array. 
+
+Stock AssetRipper wasn't expecting that: it assumed any `[SerializeReference]` field always has real managed-reference registry data behind it, threw a `NotSupportedException` on the resulting format tag, and as a side effect dropped every single field on the containing MonoBehaviour, not just the one that confused it. `VRRig.cs` was the big one that kept coming out completely empty because of this.
+
+The fix lives in `FieldSerializer.IsUnityEngineObjectSerializeReference` and a small fallback in `ManagedReferenceRegistryReader` it catches that specific misuse and reads the field as a normal PPtr instead of routing it through the managed reference registry.
+
+If you're not ripping new gorilla tag, you don't want this fork.
+
+
 
 AssetRipper is a powerful tool for analyzing Unity game files. For example, it enables game developers to:
 
@@ -14,30 +21,8 @@ AssetRipper is a powerful tool for analyzing Unity game files. For example, it e
 
 AssetRipper supports Unity versions from `3.5.0` to `6000.4.X`. However, support quality may vary slightly for different Unity versions.
 
-[Downloads](https://assetripper.com/download.html)
-
-## Premium Edition
-
-There is a premium edition of AssetRipper. This edition includes additional [features and improvements](https://assetripper.com/premium/features/).
-
-## Tips
-
-Your support helps maintain and improve AssetRipper. If you find this tool useful, please consider tipping:
-
-* [Ko-fi](https://ko-fi.com/assetripper)
-* [Buy Me a Coffee](https://buymeacoffee.com/assetripper)
-* [GitHub Sponsors](https://github.com/sponsors/ds5678)
-* [PayPal](https://paypal.me/ds5678)
-
-Users can access AssetRipper Premium with an active $10 subscription on any of those 4 platforms.
-
-## Discord [![](https://img.shields.io/discord/867514400701153281?color=blue&label=AssetRipper)](https://discord.gg/XqXa53W2Yh)
-
-The development of this project has a dedicated [Discord server](https://discord.gg/XqXa53W2Yh).
-
 ## Legal Disclaimers
 
 * AssetRipper is licensed under the [GNU General Public License v3.0](LICENSE.md).
 * AssetRipper is not sponsored by or affiliated with Unity Technologies or its affiliates.
 * "Unity" is a registered trademark of Unity Technologies or its affiliates in the U.S. and elsewhere.
-* The [Credits](https://assetripper.github.io/AssetRipper/articles/Credits.html) page contains a list of attributions.

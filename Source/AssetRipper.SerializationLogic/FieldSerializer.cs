@@ -203,7 +203,7 @@ public readonly partial struct FieldSerializer
 			(FieldDefinition fieldDefinition, TypeSignature fieldType) = pair;
 			if (WillUnitySerialize(fieldDefinition, fieldType))
 			{
-				if (fieldDefinition.HasSerializeReferenceAttribute())
+				if (fieldDefinition.HasSerializeReferenceAttribute() && !IsUnityEngineObjectSerializeReference(fieldType))
 				{
 					//The object itself is stored in the managed reference registry, so the field only holds its identifier.
 					SerializableType managedReferenceType = HasStableReferenceIds
@@ -297,6 +297,26 @@ public readonly partial struct FieldSerializer
 		for (int i = 0; i < count; i++)
 		{
 			fields.Add(baseFields[i]);
+		}
+	}
+
+	// [SerializeReference] on a UnityEngine.Object field isn't real managed-reference data, Unity writes it as a normal PPtr array instead.
+	private bool IsUnityEngineObjectSerializeReference(TypeSignature typeSignature)
+	{
+		while (true)
+		{
+			if (typeSignature is SzArrayTypeSignature szArrayTypeSignature)
+			{
+				typeSignature = szArrayTypeSignature.BaseType;
+			}
+			else if (typeSignature is GenericInstanceTypeSignature genericInstanceTypeSignature && AsmUtils.IsGenericList(genericInstanceTypeSignature, runtimeContext))
+			{
+				typeSignature = genericInstanceTypeSignature.TypeArguments[0];
+			}
+			else
+			{
+				return EngineTypePredicates.IsUnityEngineObject(typeSignature, runtimeContext);
+			}
 		}
 	}
 

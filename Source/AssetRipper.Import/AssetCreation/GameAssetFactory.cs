@@ -227,7 +227,7 @@ public sealed class GameAssetFactory : AssetFactoryBase
 
 	private static void LogMonoBehaviorReadException(IMonoBehaviour monoBehaviour, Exception ex)
 	{
-		Logger.Error(LogCategory.Import, $"Unable to read {monoBehaviour}, because script {monoBehaviour.Structure} layout mismatched binary content ({ex.GetType().Name}).");
+		Logger.Error(LogCategory.Import, $"Unable to read {monoBehaviour}, because script {monoBehaviour.Structure} layout mismatched binary content ({ex.GetType().Name}: {ex.Message}).\n{ex.StackTrace}");
 	}
 
 	private static string MakeError_ReadException(IUnityObjectBase asset, Exception ex)
