@@ -17,6 +17,8 @@ namespace AssetRipper.Import.Structure.Assembly.Serializable;
 /// </remarks>
 internal static class ManagedReferenceRegistryReader
 {
+	// Unity's kUnsupportedFormatVersion, we it as empty.
+	private const int UnsupportedFormat = 0;
 	private const int TerminatedFormat = 1;
 	private const int CountedFormat = 2;
 
@@ -41,6 +43,7 @@ internal static class ManagedReferenceRegistryReader
 		registry[ManagedReferenceTypes.VersionFieldName].AsInt32 = format;
 		registry[ManagedReferenceTypes.ReferenceIdsFieldName].AsAssetArray = format switch
 		{
+			UnsupportedFormat => [],
 			TerminatedFormat => ReadTerminatedObjects(ref reader, version, flags, depth + 1, resolver),
 			CountedFormat => ReadCountedObjects(ref reader, version, flags, depth + 1, resolver),
 			_ => throw new NotSupportedException($"Managed reference registry format {format} is not supported."),
